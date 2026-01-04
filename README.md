@@ -82,13 +82,13 @@ Nginx Proxy Manager provides an easy way to manage your Nginx proxy hosts with a
 
 This table lists all ports used by services in this repository:
 
-| Service | Port | Protocol | Purpose | Access URL |
-|---------|------|----------|---------|------------|
-| **Portainer** | 9443 | HTTPS | Web UI | https://localhost:9443 |
-| **Portainer** | 8000 | HTTP | Edge Agents | http://localhost:8000 |
-| **Nginx Proxy Manager** | 81 | HTTP | Admin Web UI | http://localhost:81 |
-| **Nginx Proxy Manager** | 80 | HTTP | Public HTTP Port | http://localhost:80 |
-| **Nginx Proxy Manager** | 443 | HTTPS | Public HTTPS Port | https://localhost:443 |
+| Service                   | Port | Protocol | Purpose              | Access URL               |
+|---------------------------|------|----------|----------------------|--------------------------|
+| **Portainer**             | 9443 | HTTPS    | Web UI               | https://localhost:9443   |
+| **Portainer**             | 8000 | HTTP     | Edge Agents          | http://localhost:8000    |
+| **Nginx Proxy Manager**   | 81   | HTTP     | Admin Web UI         | http://localhost:81      |
+| **Nginx Proxy Manager**   | 80   | HTTP     | Public HTTP Proxy    | -                        |
+| **Nginx Proxy Manager**   | 443  | HTTPS    | Public HTTPS Proxy   | -                        |
 
 > **Note**: Ports are defined in their respective `docker-compose.yml` files and can be modified by editing those files directly.
 
