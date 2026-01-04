@@ -35,23 +35,32 @@ log_error() {
 # Print usage information
 print_usage() {
     cat << EOF
-Usage: $0 [COMMAND] [OPTIONS]
+Usage: $0 [COMMAND] [SERVICE] [OPTIONS]
 
 Commands:
-    up          Start all docker compose services (default)
-    down        Stop all docker compose services
-    restart     Restart all docker compose services
-    status      Show status of all docker compose services
-    logs        Show logs from all docker compose services
-    pull        Pull latest images for all services
+    up          Start docker compose services (default)
+    down        Stop docker compose services
+    restart     Restart docker compose services
+    status      Show status of docker compose services
+    logs        Show logs from docker compose services
+    pull        Pull latest images for services
+    list        List all available services
+
+Service (optional):
+    all         All services (default if not specified)
+    n8n         Only n8n service
+    portainer   Only portainer service
+    nginxproxymanager   Only nginx proxy manager service
 
 Options:
     -h, --help  Show this help message
 
 Examples:
-    $0 up       # Start all services
-    $0 down     # Stop all services
-    $0 logs     # View logs from all services
+    $0 up                    # Start all services
+    $0 down n8n              # Stop only n8n service
+    $0 restart portainer     # Restart only portainer service
+    $0 logs nginxproxymanager # View logs from nginx proxy manager
+    $0 list                  # List all available services
 EOF
 }
 
@@ -82,17 +91,30 @@ load_env_file() {
 
 # Find all docker-compose files in the repository
 find_compose_files() {
+    local service_filter="$1"
     log_info "Searching for docker-compose files in $SCRIPT_DIR" >&2
     
     # Find all docker-compose.yml and docker-compose.yaml files
     local compose_files=()
     while IFS= read -r -d '' file; do
+        # If a service filter is specified, only include matching services
+        if [ -n "$service_filter" ] && [ "$service_filter" != "all" ]; then
+            local compose_dir="$(dirname "$file")"
+            local compose_name="$(basename "$compose_dir")"
+            if [ "$compose_name" != "$service_filter" ]; then
+                continue
+            fi
+        fi
         compose_files+=("$file")
         log_info "Found docker-compose file: $file" >&2
     done < <(find "$SCRIPT_DIR" -type f \( -name "docker-compose.yml" -o -name "docker-compose.yaml" \) -print0 2>/dev/null)
     
     if [ ${#compose_files[@]} -eq 0 ]; then
-        log_warning "No docker-compose files found in the repository" >&2
+        if [ -n "$service_filter" ] && [ "$service_filter" != "all" ]; then
+            log_warning "No docker-compose file found for service '$service_filter'" >&2
+        else
+            log_warning "No docker-compose files found in the repository" >&2
+        fi
         return 1
     fi
     
@@ -161,14 +183,47 @@ run_compose_command() {
     cd "$SCRIPT_DIR"
 }
 
+# List all available services
+list_services() {
+    log_info "Available services:"
+    echo ""
+    
+    local compose_files=()
+    while IFS= read -r -d '' file; do
+        compose_files+=("$file")
+    done < <(find "$SCRIPT_DIR" -type f \( -name "docker-compose.yml" -o -name "docker-compose.yaml" \) -print0 2>/dev/null)
+    
+    if [ ${#compose_files[@]} -eq 0 ]; then
+        log_warning "No services found in the repository"
+        return 1
+    fi
+    
+    for compose_file in "${compose_files[@]}"; do
+        local compose_dir="$(dirname "$compose_file")"
+        local service_name="$(basename "$compose_dir")"
+        local compose_file_short="$(realpath --relative-to="$SCRIPT_DIR" "$compose_file")"
+        echo "  - $service_name (${compose_file_short})"
+    done
+    
+    echo ""
+    log_info "Use 'all' or omit service name to target all services"
+}
+
 # Main function
 main() {
     local command="${1:-up}"
+    local service="${2:-all}"
     
     # Parse arguments
     case "$command" in
         -h|--help)
             print_usage
+            exit 0
+            ;;
+        list)
+            log_info "=== Docker Compose Runner for n8n-server ==="
+            check_docker
+            list_services
             exit 0
             ;;
         up|down|restart|status|logs|pull)
@@ -183,6 +238,11 @@ main() {
     
     log_info "=== Docker Compose Runner for n8n-server ==="
     log_info "Command: $command"
+    if [ "$service" != "all" ]; then
+        log_info "Service: $service"
+    else
+        log_info "Service: all services"
+    fi
     
     # Check prerequisites
     check_docker
@@ -194,15 +254,24 @@ main() {
     local compose_files=()
     while IFS= read -r file; do
         compose_files+=("$file")
-    done < <(find_compose_files)
+    done < <(find_compose_files "$service")
     
     if [ ${#compose_files[@]} -eq 0 ]; then
-        log_error "No docker-compose files found. Exiting."
+        if [ "$service" != "all" ]; then
+            log_error "No docker-compose file found for service '$service'. Available services:"
+            list_services
+        else
+            log_error "No docker-compose files found. Exiting."
+        fi
         exit 1
     fi
     
     # Execute command on all compose files
-    log_info "Executing '$command' command on all docker-compose files..."
+    if [ "$service" != "all" ]; then
+        log_info "Executing '$command' command on service '$service'..."
+    else
+        log_info "Executing '$command' command on all docker-compose files..."
+    fi
     local failed=0
     
     for compose_file in "${compose_files[@]}"; do

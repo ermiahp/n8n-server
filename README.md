@@ -26,11 +26,23 @@ A repository for managing n8n server and related services using Docker Compose.
 
 ### Running Services
 
-This repository includes a convenient script to manage all Docker Compose services.
+This repository includes a convenient script to manage all Docker Compose services. You can manage all services at once or target specific services individually.
+
+#### List available services:
+```bash
+./run-docker-compose.sh list
+```
 
 #### Start all services:
 ```bash
 ./run-docker-compose.sh up
+```
+
+#### Start a specific service:
+```bash
+./run-docker-compose.sh up n8n
+./run-docker-compose.sh up portainer
+./run-docker-compose.sh up nginxproxymanager
 ```
 
 #### Stop all services:
@@ -38,9 +50,21 @@ This repository includes a convenient script to manage all Docker Compose servic
 ./run-docker-compose.sh down
 ```
 
+#### Stop a specific service:
+```bash
+./run-docker-compose.sh down n8n
+./run-docker-compose.sh down portainer
+./run-docker-compose.sh down nginxproxymanager
+```
+
 #### Check status of all services:
 ```bash
 ./run-docker-compose.sh status
+```
+
+#### Check status of a specific service:
+```bash
+./run-docker-compose.sh status n8n
 ```
 
 #### View logs from all services:
@@ -48,14 +72,29 @@ This repository includes a convenient script to manage all Docker Compose servic
 ./run-docker-compose.sh logs
 ```
 
+#### View logs from a specific service:
+```bash
+./run-docker-compose.sh logs n8n
+```
+
 #### Restart all services:
 ```bash
 ./run-docker-compose.sh restart
 ```
 
+#### Restart a specific service:
+```bash
+./run-docker-compose.sh restart n8n
+```
+
 #### Pull latest images:
 ```bash
 ./run-docker-compose.sh pull
+```
+
+#### Pull images for a specific service:
+```bash
+./run-docker-compose.sh pull n8n
 ```
 
 #### Get help:
@@ -149,10 +188,11 @@ The script reads environment variables from the `.env` file. You can customize t
 The `run-docker-compose.sh` script provides:
 
 - **Automatic discovery**: Finds all `docker-compose.yml` files in the repository
+- **Service filtering**: Target specific services or all services at once
 - **Environment management**: Reads and applies variables from `.env` file
 - **Comprehensive logging**: Detailed logging with timestamps and color-coded messages
 - **Error handling**: Graceful error handling with informative messages
-- **Multiple commands**: Support for up, down, restart, status, logs, and pull operations
+- **Multiple commands**: Support for up, down, restart, status, logs, pull, and list operations
 
 ## Troubleshooting
 
