@@ -71,6 +71,27 @@ This repository includes a convenient script to manage all Docker Compose servic
 
 Portainer is a lightweight management UI for Docker, allowing you to easily manage your Docker containers, images, networks, and volumes.
 
+### Nginx Proxy Manager
+- Web UI: http://localhost:81
+- Public HTTP Port: 80
+- Public HTTPS Port: 443
+
+Nginx Proxy Manager provides an easy way to manage your Nginx proxy hosts with a simple, powerful interface.
+
+## Ports Reference
+
+This table lists all ports used by services in this repository:
+
+| Service                   | Port | Protocol | Purpose              | Access URL               |
+|---------------------------|------|----------|----------------------|--------------------------|
+| **Portainer**             | 9443 | HTTPS    | Web UI               | https://localhost:9443   |
+| **Portainer**             | 8000 | HTTP     | Edge Agents          | http://localhost:8000    |
+| **Nginx Proxy Manager**   | 81   | HTTP     | Admin Web UI         | http://localhost:81      |
+| **Nginx Proxy Manager**   | 80   | HTTP     | Public HTTP Proxy    | -                        |
+| **Nginx Proxy Manager**   | 443  | HTTPS    | Public HTTPS Proxy   | -                        |
+
+> **Note**: Ports are defined in their respective `docker-compose.yml` files and can be modified by editing those files directly.
+
 ## Environment Variables
 
 The script reads environment variables from the `.env` file. You can customize the following variables:
