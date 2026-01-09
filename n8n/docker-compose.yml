@@ -45,6 +45,8 @@ services:
       - n8n_data:/home/node/.n8n
       # Uncomment to mount local files for workflows backup
       # - ./workflows:/home/node/.n8n/workflows
+      # Mount for file storage - allows Read/Write File node to work with local files
+      - ./files:/files
     
     networks:
       - n8n_network

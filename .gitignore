@@ -9,6 +9,9 @@ portainer_data/
 n8n_data/
 docker-compose.override.yml
 
+# N8N file storage
+n8n/files/
+
 # Logs
 *.log
 npm-debug.log*

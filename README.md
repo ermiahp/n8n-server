@@ -122,6 +122,16 @@ Nginx Proxy Manager provides an easy way to manage your Nginx proxy hosts with a
 
 N8N is a powerful workflow automation tool that allows you to connect different services and automate tasks. It features a visual workflow editor and supports webhooks for external integrations.
 
+#### File Storage
+
+N8N includes support for reading and writing files locally using the Read/Write File node. Files are stored in the `n8n/files` directory and are accessible inside the container at `/files`.
+
+**Usage:**
+- To write a file, use the path `/files/your-filename.txt` in the Read/Write File node
+- To organize files, create subdirectories: `/files/videos/testa/images/file.jpg`
+- The files will be stored in `n8n/files/` in your host system
+- This directory is automatically ignored by git to prevent committing large files
+
 #### Configuring N8N with Nginx Proxy Manager
 
 To access N8N through Nginx Proxy Manager with a custom domain:
