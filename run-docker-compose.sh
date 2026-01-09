@@ -141,20 +141,18 @@ run_compose_command() {
             log_info "Created ./files directory"
         fi
         # Set permissions to be writable by container (n8n runs as node user, UID 1000)
-        # Try to set owner to UID 1000 first, fallback to 777 if that fails
-        if command -v chown &> /dev/null; then
-            # Try to chown to UID 1000 (node user in container)
-            if chown 1000:1000 ./files 2>/dev/null || sudo chown 1000:1000 ./files 2>/dev/null; then
-                chmod 755 ./files 2>/dev/null
-                log_success "Set ./files directory owner to UID 1000 with 755 permissions"
-            else
-                # Fallback: make it world-writable (less secure but works)
-                chmod 777 ./files 2>/dev/null || log_warning "Could not set permissions on ./files directory"
-                log_warning "Using 777 permissions for ./files (consider fixing ownership manually)"
-            fi
+        # Use 777 to ensure it works regardless of host user/group
+        if chmod 777 ./files 2>/dev/null; then
+            log_success "Set ./files directory permissions to 777 (world-writable)"
         else
-            chmod 777 ./files 2>/dev/null || log_warning "Could not set permissions on ./files directory"
-            log_warning "Using 777 permissions for ./files (consider fixing ownership manually)"
+            # Try with sudo if regular chmod fails
+            if sudo chmod 777 ./files 2>/dev/null; then
+                log_success "Set ./files directory permissions to 777 using sudo"
+            else
+                log_error "Could not set permissions on ./files directory"
+                log_warning "You may need to manually run: chmod 777 ./files"
+                log_warning "Or set ownership: sudo chown -R 1000:1000 ./files && chmod 755 ./files"
+            fi
         fi
         log_success "n8n files directory is ready"
     fi

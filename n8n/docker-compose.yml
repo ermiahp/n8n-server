@@ -48,9 +48,9 @@ services:
       # Mount for file storage - allows Read/Write File node to work with local files
       - ./files:/files
     
-    # n8n runs as node user (UID 1000), ensure files directory is writable
-    # The directory should be created on host with: mkdir -p files && chmod 777 files
-    # Or ensure the host directory owner matches container user (UID 1000)
+    # Note: The ./files directory must exist on the host and be writable
+    # Run this on the host before starting: mkdir -p ./files && chmod 777 ./files
+    # Or set ownership to match container user: chown -R 1000:1000 ./files
     
     networks:
       - n8n_network
