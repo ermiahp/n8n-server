@@ -133,6 +133,32 @@ run_compose_command() {
     
     cd "$compose_dir"
     
+    # Pre-startup setup for n8n service
+    if [ "$compose_name" = "n8n" ] && [ "$command" = "up" ]; then
+        log_info "Setting up n8n files directory..."
+        if [ ! -d "./files" ]; then
+            mkdir -p ./files
+            log_info "Created ./files directory"
+        fi
+        # Set permissions to be writable by container (n8n runs as node user, UID 1000)
+        # Try to set owner to UID 1000 first, fallback to 777 if that fails
+        if command -v chown &> /dev/null; then
+            # Try to chown to UID 1000 (node user in container)
+            if chown 1000:1000 ./files 2>/dev/null || sudo chown 1000:1000 ./files 2>/dev/null; then
+                chmod 755 ./files 2>/dev/null
+                log_success "Set ./files directory owner to UID 1000 with 755 permissions"
+            else
+                # Fallback: make it world-writable (less secure but works)
+                chmod 777 ./files 2>/dev/null || log_warning "Could not set permissions on ./files directory"
+                log_warning "Using 777 permissions for ./files (consider fixing ownership manually)"
+            fi
+        else
+            chmod 777 ./files 2>/dev/null || log_warning "Could not set permissions on ./files directory"
+            log_warning "Using 777 permissions for ./files (consider fixing ownership manually)"
+        fi
+        log_success "n8n files directory is ready"
+    fi
+    
     case "$command" in
         up)
             if docker compose -f "$(basename "$compose_file")" up -d; then
