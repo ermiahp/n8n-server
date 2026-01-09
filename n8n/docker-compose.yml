@@ -40,6 +40,10 @@ services:
       
       # Encryption key for credentials (IMPORTANT: Set this to a random string)
       - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY:-change-this-to-a-random-string}
+      
+      # File system access - allow n8n to read/write files in /files directory
+      # This is required for Read/Write File nodes to work with the mounted volume
+      - N8N_RESTRICT_FILE_ACCESS_TO=/files
     
     volumes:
       - n8n_data:/home/node/.n8n
