@@ -69,3 +69,5 @@ ENV/
 *.cert
 *.p12
 *.pfx
+
+.cursor/
